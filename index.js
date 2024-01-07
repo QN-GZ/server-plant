@@ -1,6 +1,5 @@
 // create a http server that response to any request with a random number
 const http = require('http');
-const dns = require('dns'); 
 var fs = require('fs');
 
 const MY_IP = '192.168.86.186';
@@ -29,4 +28,3 @@ const server = http.createServer((req, res) => {
     return res.end('PATCH request');
   }
 }).listen(3232);
-
