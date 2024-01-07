@@ -4,9 +4,10 @@ var player = require('play-sound')(opts = {})
 const AUDIO_FILE = 'Na_lipsync.m4a';
 
 const UDP_COM_PORT = 10001;
-const DISCOVERY_INTERVAL = 2;
+const DISCOVERY_INTERVAL = 5;
 const DRYNESS = 1000;
 const PLAYBACK_DURATION = 8000;
+const PLANT_MAX_DRYNESS = 2350;
 const STATE = {
   discoveryJson : {
     "id": 1234,
@@ -72,13 +73,18 @@ const startDiscovery = async (state = {}) => {
       socket.setBroadcast(false);
       state.run.isDiscoveryRunning = false;
       state.run.isDiscoveryTimer_2s = 0;
+      state.run.discoveredDevices = state.run.discoveredDevices.filter((device, index, devices) => {
+        const duplicateIndex = devices.findIndex(d => d.id === device.id);
+        return duplicateIndex === index;
+      });
     } else {
       console.log(`Received response from: `, remote.address);
       console.log(`response: `, msgJson.result);
       state.run.plantGetResponse = msgJson;
       if (state.run.plantGetResponse.result?.dryness !== undefined) {
-        if (state.run.plantGetResponse.result.dryness < state.run.plantGetResponse.result.max_dryness && !state.run.isSoundPlaying) {
-          state.run.isSoundPlaying = true;
+        // if (state.run.plantGetResponse.result.dryness > state.run.plantGetResponse.result.max_dryness && !state.run.isSoundPlaying) {
+          if (state.run.plantGetResponse.result.dryness > PLANT_MAX_DRYNESS && !state.run.isSoundPlaying) {
+            state.run.isSoundPlaying = true;
           console.log('Playing sound...');
           // access the node child_process in case you need to kill it on demand
           var audio = player.play(AUDIO_FILE, function(err){
@@ -107,7 +113,7 @@ const startDiscovery = async (state = {}) => {
           socket.send(plantGetBuffer, 0, plantGetBuffer.length, UDP_COM_PORT, device.wifi.sta_ip);
         });
       }
-    }, 2000);
+    }, 5000);
   });
 }
 
