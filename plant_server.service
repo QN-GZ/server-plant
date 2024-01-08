@@ -1,0 +1,14 @@
+[Unit]
+Description=Plant sensor server
+After=network.target auditd.service
+
+[Service]
+ExecStart=/home/pi/projects/server-plant/moisture_server_startup.sh
+KillMode=process
+Restart=on-failure
+RestartPreventExitStatus=255
+Type=simple
+RuntimeDirectory=/home/pi/projects/server-plant/
+
+[Install]
+WantedBy=multi-user.target
