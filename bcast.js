@@ -8,6 +8,7 @@ const DISCOVERY_INTERVAL = 5;
 const DRYNESS = 1000;
 const PLAYBACK_DURATION = 8000;
 const PLANT_MAX_DRYNESS = 2350;
+const PLANT_READ_INTERVAL = 5000;
 const STATE = {
   discoveryJson : {
     "id": 1234,
@@ -113,7 +114,7 @@ const startDiscovery = async (state = {}) => {
           socket.send(plantGetBuffer, 0, plantGetBuffer.length, UDP_COM_PORT, device.wifi.sta_ip);
         });
       }
-    }, 5000);
+    }, PLANT_READ_INTERVAL);
   });
 }
 
