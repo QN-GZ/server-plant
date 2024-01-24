@@ -1,6 +1,6 @@
-const dgram = require('dgram');
+import dgram from 'dgram';
 const socket = dgram.createSocket('udp4');
-var player = require('play-sound')(opts = {})
+import player from 'play-sound';
 const AUDIO_FILE = 'Na_lipsync.m4a';
 
 const UDP_COM_PORT = 10001;
@@ -55,8 +55,13 @@ const STATE = {
     isDiscoveryRunning: false,
     isSoundPlaying: false,
     isDiscoveryTimer_2s: 0,
-    discoveredDevices: []
+    discoveredPlants: []
   }
+}
+
+var state = STATE;
+export function getDiscoveredPlants() {
+  return state.run.discoveredPlants;
 }
 
 const startDiscovery = async (state = {}) => {
@@ -68,13 +73,13 @@ const startDiscovery = async (state = {}) => {
     if (state.run.isDiscoveryRunning && msgJson.method !== 'Plant.Discovery') {
       console.log(`Received '${msgJson.method}' response from: `, remote.address);
       console.log(msgJson);
-      state.run.discoveredDevices.push(msgJson.result);
+      state.run.discoveredPlants.push(msgJson.result);
     } else if (state.run.isDiscoveryRunning && msgJson.method === 'Plant.Discovery' && ++state.run.isDiscoveryTimer_2s > DISCOVERY_INTERVAL) {
       console.log('Done with discovery - stopping');
       socket.setBroadcast(false);
       state.run.isDiscoveryRunning = false;
       state.run.isDiscoveryTimer_2s = 0;
-      state.run.discoveredDevices = state.run.discoveredDevices.filter((device, index, devices) => {
+      state.run.discoveredPlants = state.run.discoveredPlants.filter((device, index, devices) => {
         const duplicateIndex = devices.findIndex(d => d.id === device.id);
         return duplicateIndex === index;
       });
@@ -110,7 +115,7 @@ const startDiscovery = async (state = {}) => {
         socket.send(discoveryJsonBuffer, 0, discoveryJsonBuffer.length, UDP_COM_PORT, '255.255.255.255');
       } else {
         const plantGetBuffer = Buffer.from(JSON.stringify(state.plantGetJson));
-        state.run.discoveredDevices.forEach(device => {
+        state.run.discoveredPlants.forEach(device => {
           socket.send(plantGetBuffer, 0, plantGetBuffer.length, UDP_COM_PORT, device.wifi.sta_ip);
         });
       }
@@ -118,4 +123,6 @@ const startDiscovery = async (state = {}) => {
   });
 }
 
-startDiscovery(STATE);
+startDiscovery(state);
+
+// export default getDiscoveredPlants;
