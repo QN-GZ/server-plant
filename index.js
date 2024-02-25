@@ -1,8 +1,8 @@
 // create a http server that response to any request with a random number
 import http from 'http';
-const MY_IP = '192.168.86.186';
-
 import { getDiscoveredPlants } from './bcast.js';
+const MY_IP = '192.168.86.186';
+const HTTP_PORT = 10032;
 
 var discoveredPlants = [
   {
@@ -29,14 +29,18 @@ var discoveredPlants = [
     }
   }
 ]
+
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/plants') {
+    console.log('GET /plants');
     var plants = getDiscoveredPlants();
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(plants));
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Add this line for CORS support
+    res.write(JSON.stringify(plants)); // Set plants as the response body
+    res.end();
   } else {
     res.statusCode = 404;
     res.end('Not Found');
   }
-}).listen(10032);
+}).listen(HTTP_PORT);

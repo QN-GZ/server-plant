@@ -5,7 +5,7 @@ const AUDIO_FILE = 'Na_lipsync.m4a';
 
 const UDP_COM_PORT = 10001;
 const DISCOVERY_INTERVAL = 5;
-const DRYNESS = 1000;
+const BASE_DRYNESS = 1000; // 0% dryness
 const PLAYBACK_DURATION = 8000;
 const PLANT_MAX_DRYNESS = 2350;
 const PLANT_READ_INTERVAL = 5000;
@@ -38,6 +38,9 @@ const STATE = {
       ram_min_free: 224020,
       fs_size: 5177344,
       fs_free: 5132288,
+      dryness_pct: 0,
+      dryness: BASE_DRYNESS,
+      max_dryness: PLANT_MAX_DRYNESS,
       wifi: {
         sta_ip: '192.168.86.207',
         ap_ip: '',
@@ -85,24 +88,31 @@ const startDiscovery = async (state = {}) => {
       });
     } else {
       console.log(`Received response from: `, remote.address);
-      console.log(`response: `, msgJson.result);
+      console.log(`response: `, msgJson);
       state.run.plantGetResponse = msgJson;
       if (state.run.plantGetResponse.result?.dryness !== undefined) {
-        // if (state.run.plantGetResponse.result.dryness > state.run.plantGetResponse.result.max_dryness && !state.run.isSoundPlaying) {
-          if (state.run.plantGetResponse.result.dryness > PLANT_MAX_DRYNESS && !state.run.isSoundPlaying) {
-            state.run.isSoundPlaying = true;
-          console.log('Playing sound...');
-          // access the node child_process in case you need to kill it on demand
-          var audio = player.play(AUDIO_FILE, function(err){
-            if (err && !err.killed) throw err
-          })
-          // timer to end the music after 5 seconds
-          setTimeout(function () {
-            audio.kill();
-            state.run.isSoundPlaying = false;
-          }, PLAYBACK_DURATION);
+        // if (state.run.plantGetResponse.result.dryness > PLANT_MAX_DRYNESS && !state.run.isSoundPlaying) {
+        //   state.run.isSoundPlaying = true;
+        //   console.log('Playing sound...');
+        //   // access the node child_process in case you need to kill it on demand
+        //   var audio = player.play(AUDIO_FILE, function(err){
+        //     if (err && !err.killed) throw err
+        //   })
+        //   // timer to end the music after 5 seconds
+        //   setTimeout(function () {
+        //     audio.kill();
+        //     state.run.isSoundPlaying = false;
+        //   }, PLAYBACK_DURATION);
+        // }
 
-        }
+        // Set plant dryness and max_dryness if msgJson.src equals discoveredPlants.id
+        state.run.discoveredPlants.forEach(plant => {
+          if (msgJson.src === plant.id) {
+            plant.dryness = state.run.plantGetResponse.result.dryness;
+            plant.max_dryness = state.run.plantGetResponse.result.max_dryness;
+            plant.dryness_pct = Math.round(((plant.dryness - BASE_DRYNESS)/ (PLANT_MAX_DRYNESS - BASE_DRYNESS)) * 100);
+          }
+        });
       }
     }
   });
@@ -125,4 +135,4 @@ const startDiscovery = async (state = {}) => {
 
 startDiscovery(state);
 
-// export default getDiscoveredPlants;
+export default getDiscoveredPlants;
