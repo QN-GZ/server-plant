@@ -1,2 +1,2 @@
 #!/bin/bash
-node /home/pi/projects/server-plant/bcast.js > /home/pi/projects/server-plant/bcast.log 2>&1 &
+node /home/pi/projects/server-plant/index.js > /home/pi/projects/server-plant/moist_server.log 2>&1 &
