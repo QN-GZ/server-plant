@@ -125,3 +125,28 @@ Start the server manually
 ```properties
 > sudo systemctl start plant_server.service
 ```
+
+## Debugging
+The `plant_server.service` execute 2 programs in detached screen sessions. We can reattach the screen sessions to observe activities logs.
+
+1. To find screen session:
+```properties
+$ sudo screen -ls
+
+There are screens on:
+	749..plantio	(03/01/25 20:10:34)	(Detached)
+	753..plantio	(03/01/25 20:10:34)	(Detached)
+2 Sockets in /run/screen/S-root.
+```
+
+2. To reattach to a `screen` session from the list:
+```properties
+$ screen -r <session id>
+eg: screen -r 749
+```
+
+3. To detach a `screen` session without terminating:
+```properties
+$ ctlr + a,d
+```
+

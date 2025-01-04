@@ -1,4 +1,7 @@
 #!/bin/bash
-node /home/pi/projects/server-plant/index.js > /home/pi/projects/server-plant/moist_server.log 2>&1 &
+USER_PROJECT=/home/quang-nguyen/projects
+USER_NVM_BIN=/home/quang-nguyen/.nvm/versions/node/v20.17.0/bin
 
-serve -s /home/pi/projects/plant-sensor-react-server/build &
+screen -d -m $USER_NVM_BIN/node $USER_PROJECT/server-plant/index.js 
+
+screen -d -m $USER_NVM_BIN/node $USER_NVM_BIN/serve -s $USER_PROJECT/plant-sensor-react-server/build
