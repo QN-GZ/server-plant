@@ -110,6 +110,11 @@ const startDiscovery = async (state = {}) => {
           if (msgJson.src === plant.id) {
             plant.dryness = state.run.plantGetResponse.result.dryness;
             plant.max_dryness = state.run.plantGetResponse.result.max_dryness;
+            if (plant.dryness > PLANT_MAX_DRYNESS) {
+              plant.dryness = PLANT_MAX_DRYNESS;
+            } else if (plant.dryness < BASE_DRYNESS) {
+              plant.dryness = BASE_DRYNESS;
+            }
             plant.dryness_pct = Math.round(((plant.dryness - BASE_DRYNESS)/ (PLANT_MAX_DRYNESS - BASE_DRYNESS)) * 100);
           }
         });
